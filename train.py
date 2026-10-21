@@ -10,11 +10,20 @@ train_data = torchvision.datasets.MNIST(
     # so ex. (width, hei)
 )
 
+test_data = torchvision.datasets.MNIST(
+    root ='data',
+    train=False,
+    download=True,
+    transform = torchvision.transforms.ToTensor()
+)
+
+
+
 image = train_data[0][0]  
 # first image in the set
 # when you print train_data[0], you get a tuple, aka it holds different things
 # that one in particular returns the image + label for the first image in the set
-label = train_data[0][1] 
+#label = train_data[0][1] 
 # returns the label for the first image, in this case it should be 5
 
 flat_image = image.flatten()
@@ -53,15 +62,27 @@ result = output_layer(active_output)
 #actual model yaaay!!!
 
 model = torch.nn.Sequential(
-  torch.nn.Flatten(), # now we can skip the flat_image 
+  torch.nn.Flatten(), 
   hidden_layer,
   activation,
   output_layer,
 )
 
+device = torch.device("cuda")
+model = model.to(device)
+
+
+saved_weights = torch.load(
+    "MNIST_MLP.pth",
+    map_location="cuda",
+    weights_only=True
+)
+
+model.load_state_dict(saved_weights)
+
 # kinda the same thing but it does all the steps above automatically
 
-prediction = model(image)
+#prediction = model(image)
 # yeah its using the sequence to do stuff with an image
 
 loss_fn = torch.nn.CrossEntropyLoss()
@@ -69,7 +90,7 @@ loss_fn = torch.nn.CrossEntropyLoss()
 # its basically telling how wrong yo shit is
 # cross entropy loss used here because we classifying shit
 
-target = torch.tensor([label])
+#target = torch.tensor([label])
 # basically the correct number, or the number its trying to predict
 # without the brackets it just throws "tensor(5)"
 # for CE loss we need it to be tensor ([5]) cause then it has a dimension of 1
@@ -112,17 +133,28 @@ train_loader = torch.utils.data.DataLoader(
 
 #print(len(train_loader))
 
-total_loss = 0
 
-for images, labels in train_loader:
-    predictions = model(images)
+for i in range(5):
+    # now we can do multiple epoches! 
+    # also 5 is a hyperparameter aswell
 
-    loss_outputs = loss_fn(predictions, labels)
-    total_loss += loss_outputs.item()
+    total_loss = 0
+    # self explanatory here
+    for images, labels in train_loader:
 
-    optimizer.zero_grad()
-    loss_outputs.backward()
-    optimizer.step()
+        images = images.to(device)
+        labels = labels.to(device)
+        predictions = model(images)
+    
+        loss_outputs = loss_fn(predictions, labels)
+       
+        total_loss += loss_outputs.item()
+
+        optimizer.zero_grad()
+        loss_outputs.backward()
+        optimizer.step()
+    # okay lowkey idk if i keep these inside our outside the loop,
+    #  probably inside
 
    # print("Before:", loss_outputs.item())
 
@@ -132,6 +164,34 @@ for images, labels in train_loader:
     #print("After:", loss_after.item())
    # print(predictions.shape)
 
-average_batch_loss = total_loss / len(train_loader)
-print(average_batch_loss)
-# im worried here cause technically we have 32 images in our last batch
+    average_batch_loss = total_loss / len(train_loader)
+
+   # print(average_batch_loss)
+
+   # print(f"Epoch {i+1}: {average_batch_loss:.4f}")
+    # also apparently this is a f string.
+    # i could just do "epoch:" + str(i +1) + yadadada but this is easy to read
+    #putting the function:.4f rounds this to the 4th place!!
+
+test_loader = torch.utils.data.DataLoader(
+    dataset = test_data,
+    batch_size=64,
+    shuffle = False
+)
+
+total_correct = 0
+model.eval()
+
+with torch.no_grad():
+    for images, labels in test_loader:
+
+        images = images.to(device)
+        labels = labels.to(device)
+
+        testing_predictions = model(images)
+        predicted_digits = testing_predictions.argmax(dim=1)
+        total_correct += ((predicted_digits == labels).sum().item())
+accuracy = (total_correct/ len(test_data))*100
+print(accuracy)
+
+torch.save(model.state_dict(), 'MNIST_MLP.pth')

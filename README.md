@@ -12,3 +12,10 @@ for this to work you'll have to have python installed, and read the installation
 
 right now im trying to figure out how to let my neural network go through all the data instead of running 1 epoch (which is just passing a set amount of data through the model)
 i think it also makes a new model instead of running off the previous one, so thats a problem too if i want to train it
+
+COOL!!! i got my model to run different epochs and it can load and save itself!!! my model also prints its accuracy :3
+
+# Running the Program
+
+you're gonna need to install python and pytorch. i have this configured to run on my gpus
+but other than this, clone this repo and it should run in vscode or whatever
