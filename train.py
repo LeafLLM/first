@@ -102,7 +102,7 @@ loss_fn = torch.nn.CrossEntropyLoss()
 
 optimizer = torch.optim.Adam(
     model.parameters(), 
-    lr = 0.001
+    lr = 0.0001
     )
 #this is basically the thing that updates the model. LR stands for learning rate
 # Actually for this model, I don't know what happens if you increase the LR more.
@@ -134,9 +134,9 @@ train_loader = torch.utils.data.DataLoader(
 #print(len(train_loader))
 
 
-for i in range(5):
+for i in range(10):
     # now we can do multiple epoches! 
-    # also 5 is a hyperparameter aswell
+    # also 5 (it can be anything else honestly) is a hyperparameter aswell
 
     total_loss = 0
     # self explanatory here
@@ -168,7 +168,7 @@ for i in range(5):
 
    # print(average_batch_loss)
 
-   # print(f"Epoch {i+1}: {average_batch_loss:.4f}")
+print(f"Epoch {i+1}: {average_batch_loss:.4f}")
     # also apparently this is a f string.
     # i could just do "epoch:" + str(i +1) + yadadada but this is easy to read
     #putting the function:.4f rounds this to the 4th place!!
