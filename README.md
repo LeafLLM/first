@@ -1,37 +1,26 @@
-# Machine learning projects
+# Classification Neural Network
 
-- [Number classification](number%20classification/README.md): my handwritten digit classifier using MNIST, PyTorch, and Gradio.
-- `fashion mnist/`: space for my next project.
+https://mnist-number-classification-8l3v.onrender.com
 
-## Run the number classifier locally
+this project is supposed to get me started with machine learning!!! 
+it's trained off the MNIST data set (basically a data of a bunch of handwritten numbers)
+the neural network is supposed to classify these numbers 0-9 
 
-From this repository folder in PowerShell:
+so far its helped me learn a lot about activation & loss functions. 
+in this you'll see that almost every line has a piece of code, or a bunch of print functions to test if my values were reasonable.
+this is mostly just a learning step for me.
 
-```powershell
-.\gradio-env\Scripts\Activate.ps1
-cd "number classification"
-python app.py
-```
+this was a great project to learn a bit about gradio which makes interacting with my model straightforward
 
-The existing virtual environment stays at the repository root. Run training from inside `number classification` too, so its relative data and model paths resolve correctly.
+# Running the Program
 
-## Render deployment
+heyy this runs on a website now! 
+https://mnist-number-classification-8l3v.onrender.com
+it's pretty self explanatory, but I turned off live guessing to save some RAM since im hosting it use render
+it's not perfect but i did fix the resizing issues! 
+i also could train the model some more if i really wanted to 
 
-Open the existing number-classifier web service in Render, then go to **Settings > Build & Deploy**:
+# Issues?
 
-| Setting | Value |
-| --- | --- |
-| Branch | `main` |
-| Root Directory | `number classification` |
-| Build Command | `pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt` |
-| Start Command | `python app.py` |
-
-Enter the root directory without quotation marks. Commands run from inside it. The build command installs CPU-only PyTorch first because this deployment does not need CUDA.
-
-Save the settings, verify the commands in Render's update dialog, then use **Manual Deploy > Deploy latest commit**. If an old dependency installation is still causing errors, use **Clear build cache & deploy**.
-
-The app already binds to `0.0.0.0` and reads Render's `PORT` environment variable. Keep `MNIST_MLP.pth` in the classifier folder; deployment loads these saved weights and does not run training.
-
-If deployment still fails, inspect the first error in the build or runtime logs. These settings fix paths after the move and install the app dependencies; they do not establish the cause of any other existing deployment failure.
-
-Render documentation: https://render.com/docs/monorepo-support
+for some reason it's still innacurate, I could spend more time polishing this up if i wanted to but this project did the job i wanted it to.
+additionally, the ui is a little janky after a few uses but it does work and classify numbers!! making this interactive was neat
