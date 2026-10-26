@@ -1,8 +1,18 @@
 import torch 
-import torchvision
+import numpy as np
+#import torchvision
 import gradio as gr
 from PIL import Image
 from PIL import Image, ImageOps
+import os 
+import psutil
+
+def check_ram():
+    process = psutil.Process(os.getpid())
+    # finds python's process id
+    ram_mb= process.memory_info().rss / (1024**2)
+    # bytes to MB
+    print("ram", ram_mb)
 
 hidden_layer = torch.nn.Linear(in_features =784, out_features = 128, bias = True)
 
@@ -17,6 +27,7 @@ model = torch.nn.Sequential(
   output_layer,
 )
 
+
 saved_weights = torch.load(
     'MNIST_MLP.pth',
     weights_only=True,
@@ -26,6 +37,7 @@ saved_weights = torch.load(
 model.load_state_dict(saved_weights)
 
 model.eval()
+check_ram()
 
 # hey ive done this all already !!!
 # the only thing i forgot initially was to load saved_weights
@@ -38,11 +50,12 @@ def predict_image(image):
         return ""
     # model wants [1,1,28,28]
     # 1 image, 1 color channel, width, height
+    
     pil_img = Image.fromarray(image["composite"])
     # converts the array from gradio into a pillow image
     # also the convert means converting to grayscale 
     # this is a little confusing but the composite means that it's finished 
-    resized_img = pil_img.resize((28,28))
+    # resized_img = pil_img.resize((28,28))
     invert_img = ImageOps.invert(pil_img.convert("L"))
     #alright to tackle the resizing issue i need to crop around the drawn image
     # bbox finds the where to crop
@@ -51,8 +64,8 @@ def predict_image(image):
     if bbox is not None:
         cropped_img = invert_img.crop(bbox)
 
-        print("Bound box:", bbox)
-        print("cropped box:", cropped_img)
+       # print("Bound box:", bbox)
+       # print("cropped box:", cropped_img)
 
         width, height = cropped_img.size
 
@@ -63,6 +76,7 @@ def predict_image(image):
         scale = 20/max(width, height)
         # image wont be perfectly square
         # we want to scale down to 20 
+
         new_width = max(1,round(width*scale))
         # now we use the scale!
         new_height = max(1, round(height*scale))
@@ -77,20 +91,22 @@ def predict_image(image):
 
         paste_img.paste(resized_img, (x,y))
         # asks for image, and the coordinates
+    else:
+        return None
 
 
         
 
     #self explanatory
-    transform = torchvision.transforms.ToTensor()
-    img_transform = transform(paste_img)
+    img_array = np.asarray(paste_img, dtype=np.float32) / 255.0
+    img_transform = torch.from_numpy(img_array).unsqueeze(0).unsqueeze(0)
     # okay this gives me [1, 28, 28]
     # turns into a tensor for the model to see
     # theres something important i needed to add and its another dimension to the tensor
     # [64, 1, 28, 28] is what we'd use in train.py 
     # the 64 is basically the # of images in a batch
 
-    img_transform = img_transform.unsqueeze(0)
+    #img_transform = img_transform.unsqueeze(0)
     #invert_tensor = 1.0 - img_transform
 
     print( "resized:", resized_img.size)
@@ -99,6 +115,8 @@ def predict_image(image):
 
     with torch.no_grad():
         predictions = model(img_transform)
+
+    check_ram()
 
     predicted_digits = predictions.argmax().item()
     # i keep forgetting what argmax does
@@ -129,7 +147,9 @@ demo = gr.Interface(
                          )
     ),
     outputs = gr.Number(),
-    live = True
+    live = False
 )
 
-demo.launch()
+demo.launch( 
+    share=True
+)
