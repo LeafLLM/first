@@ -1,1 +1,4 @@
-.gradio/certificate.pem
+gradio-env/
+__pycache__/
+*.py[cod]
+**/.gradio/certificate.pem

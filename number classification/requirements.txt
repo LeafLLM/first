@@ -2,3 +2,4 @@ gradio
 numpy
 Pillow
 psutil
+torch
