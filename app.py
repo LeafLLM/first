@@ -37,7 +37,7 @@ saved_weights = torch.load(
 model.load_state_dict(saved_weights)
 
 model.eval()
-check_ram()
+#check_ram()
 
 # hey ive done this all already !!!
 # the only thing i forgot initially was to load saved_weights
@@ -109,14 +109,14 @@ def predict_image(image):
     #img_transform = img_transform.unsqueeze(0)
     #invert_tensor = 1.0 - img_transform
 
-    print( "resized:", resized_img.size)
-    print("final:", paste_img.size)
-    print ("tensor:", img_transform.shape)
+    #print( "resized:", resized_img.size)
+    #print("final:", paste_img.size)
+    #print ("tensor:", img_transform.shape)
 
     with torch.no_grad():
         predictions = model(img_transform)
 
-    check_ram()
+    #check_ram()
 
     predicted_digits = predictions.argmax().item()
     # i keep forgetting what argmax does
